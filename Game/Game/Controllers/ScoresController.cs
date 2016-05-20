@@ -22,14 +22,23 @@ namespace ReviewsApp.Controllers
             db = new MyDbContext();
             manager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
         }
+
+        // GET: /ToDo/All
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> All()
+        {
+            return View(await db.Scores.ToListAsync());
+        }
+
         // GET: Scores
+        [Authorize]
         public async Task<ActionResult> Index()
         {
             var currentUser = await manager.FindByIdAsync(User.Identity.GetUserId());
 
-            return View(db.Scores.Where(x => x.User.UserName == currentUser.UserName));
+            var scores = db.Scores.Where(x => x.UserId == currentUser.MyUserInfo.Id).ToList();
 
-            //return View(db.Scores.ToList());
+            return View(scores);
             
         }
 
@@ -62,27 +71,12 @@ namespace ReviewsApp.Controllers
         public async Task<ActionResult> Create([Bind(Include = "Id,Points,Date")] Score score)
         {
             var currentUser = await manager.FindByIdAsync(User.Identity.GetUserId());
-            //if (ModelState.IsValid)
-            //{
-            //    score.User = currentUser;
-            //    db.Scores.Add(score);
-            //    await db.SaveChangesAsync();
-            //    return RedirectToAction("Index");
-            //}
-
             var user = new ApplicationUser { UserName = currentUser.UserName, };
-            //db.Users.Attach(currentUser);
-
 
             var newScore = new Score { Date = DateTime.Now, Points = score.Points, UserId = currentUser.MyUserInfo.Id };
 
             try
             {
-
-                //db.Entry(score).State = System.Data.Entity.EntityState.Detached;
-                //db.Entry(score).State = System.Data.Entity.EntityState.Modified;
-                // db.Entry(score).State = System.Data.Entity.EntityState.Added;
-
                 db.Scores.Add(newScore);
                 await db.SaveChangesAsync();
 

@@ -80,7 +80,12 @@
 <form id="gameForm" action="/Home/UpdateScore" method="post">
 
 <script src="~/Scripts/jquery-2.0.3.min.js"></script>
+
 <script>
+    function sleepFor( sleepDuration ){
+        var now = new Date().getTime();
+        while(new Date().getTime() < now + sleepDuration){ /* do nothing */ }
+    }
 
     function addEvent(element, event, delegate) {
         if (typeof (window.event) != 'undefined' && element.attachEvent)
@@ -157,28 +162,26 @@
         }
 
         function HighScores() {
-            if (typeof(Storage) !== "undefined") {
-                var scores = false;
-                if (localStorage["high-scores"]) {
-                    high_scores.style.display = "block";
-                    
-                    high_scores.innerHTML = '';
 
-                    //scores = JSON.parse(localStorage["high-scores"]);
-                    scores = @Html.Raw(Json.Encode(Model));
-                    scores = scores.sort(function(a, b) { return parseInt(b) - parseInt(a) });
+            var scores = false;
 
-                    for (var i = 0; i < 10; i++) {
-                        var s = scores[i];
-                        document.body.style.backgroundColor = "green";
-                        var fragment = document.createElement('li');
-                        fragment.innerHTML = (typeof(s) != "undefined" ? s : "");
-                        high_scores.appendChild(fragment);
-                    }
+            if (localStorage["high-scores"]) {
+                high_scores.style.display = "block";
+
+                high_scores.innerHTML = '';
+
+                scores = @Html.Raw(Json.Encode(Model));
+                scores = scores.sort(function(a, b) { return parseInt(b) - parseInt(a) });
+
+                for (var i = 0; i < 10; i++) {
+                    var s = scores[i];
+                    document.body.style.backgroundColor = "green";
+                    var fragment = document.createElement('li');
+                    fragment.innerHTML = (typeof(s) != "undefined" ? s : "");
+                    high_scores.appendChild(fragment);
                 }
-            } else {
-                high_scores.style.display = "none";
             }
+
         }
 
         function SendScore(current) {
@@ -200,54 +203,9 @@
         function UpdateScore() {
             var current = parseInt(score.innerHTML);
             SendScore(current);
-            window.location.reload();
-            @*var call = $.ajax({
-                type: "POST",
-                url: "@Url.Action("UpdateScore", "Home")",
-                dataType: "json",
-                contentType: "application/json; charset=utf-8",
-                data: JSON.stringify({ newScore: current }),
-                success: function (data) {
-                    alert(data);
-                },
-                failure: function (errMsg) {
-                    alert(errMsg);
-                }
-            });
-            call.success(function() { alert(call.responseText); });*@
-
-
-            //if(typeof(Storage)!=="undefined"){
-            //	var current = parseInt(score.innerHTML);
-            //	var scores = false;
-            //	if(localStorage["high-scores"]) {
-
-            //		scores = JSON.parse(localStorage["high-scores"]);
-            //		scores = scores.sort(function(a,b){return parseInt(b)-parseInt(a)});
-
-            //		for(var i = 0; i < 10; i++){
-            //			var s = parseInt(scores[i]);
-
-            //			var val = (!isNaN(s) ? s : 0 );
-            //			if(current > val)
-            //			{
-            //				val = current;
-            //				scores.splice(i, 0, parseInt(current));
-            //				break;
-            //			}
-            //		}
-
-            //		scores.length = 10;
-            //		localStorage["high-scores"] = JSON.stringify(scores);
-
-            //	} else {
-            //		var scores = new Array();
-            //		scores[0] = current;
-            //		localStorage["high-scores"] = JSON.stringify(scores);
-            //	}
 
             HighScores();
-            //}
+            window.location.reload();
         }
 
         function Stop(interval) {

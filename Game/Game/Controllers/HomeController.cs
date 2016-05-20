@@ -29,58 +29,34 @@ namespace ReviewsApp.Controllers
         }
 
         [Authorize]
+        [HttpGet]
         public async Task<ActionResult> Game()
         {
-            // Instantiate the ASP.NET Identity system
-            //var manager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MyDbContext()));
-
-            //Get the current logged in User and look up the user in ASP.NET Identity
             
             var currentUser = manager.FindById(User.Identity.GetUserId());
 
-            var scores = db.Scores.Where(x => x.UserId == currentUser.MyUserInfo.Id);//currentUser.Scores;
+            var scores = db.Scores.Where(x => x.UserId == currentUser.MyUserInfo.Id);
             
-            var rawScores = new List<int>(new int[1000]);
+            var rawScores = new List<int>(new int[100]);
             int i = 0;
 
-
             scores.ForEach(x => rawScores[i++] = x.Points);
-            //IEnumerable<int> rawScoresOrderedDescending = rawScores.OrderByDescending(x => x);
-            //((ObjectQuery)rawScoresOrderedDescending).MergeOption = MergeOption.NoTracking;
-
-            //return View(new int[10]);
             return View(rawScores.OrderByDescending(x => x));
         }
 
         [HttpPost]
         public async Task<ActionResult> UpdateScore(int newScore)
         {
-            // Instantiate the ASP.NET Identity system
-            //var manager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MyDbContext()));
-
-            // Get the current logged in User and look up the user in ASP.NET Identity
             var currentUser = manager.FindById(User.Identity.GetUserId());
-            
-            //db.Users.Attach(currentUser);
-
-            //currentUser.Scores.Add(new Score {Date = DateTime.Now, Points = newScore, User = currentUser});
-            //var score = new Score {Date = DateTime.Now, Points = newScore, User = currentUser};
 
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser {UserName = currentUser.UserName, };
-                //db.Users.Attach(currentUser);
-                
-                
+              
                 var score = new Score { Date = DateTime.Now, Points = newScore, UserId = currentUser.MyUserInfo.Id};
                 
                 try
                 {
-
-                    //db.Entry(score).State = System.Data.Entity.EntityState.Detached;
-                    //db.Entry(score).State = System.Data.Entity.EntityState.Modified;
-                   // db.Entry(score).State = System.Data.Entity.EntityState.Added;
-
                     db.Scores.Add(score);
                     await db.SaveChangesAsync();
                     
@@ -89,8 +65,7 @@ namespace ReviewsApp.Controllers
                 {
                     throw exception;
                 }
-                return Redirect(Request.UrlReferrer.ToString());
-                //return RedirectToAction("Game", "Home");
+                return RedirectToAction("Game", "Home");
             }
 
 
@@ -101,10 +76,6 @@ namespace ReviewsApp.Controllers
         [Authorize]
         public ActionResult Profile()
         {
-            // Instantiate the ASP.NET Identity system
-            //var manager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MyDbContext()));
-            
-            // Get the current logged in User and look up the user in ASP.NET Identity
             var currentUser = manager.FindById(User.Identity.GetUserId()); 
             
             
